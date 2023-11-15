@@ -523,7 +523,7 @@ df_stage = df_stage.rename(columns={'puuid_x': 'puuid'})
 
 # --------------------Conexión a la base de datos--------------------
 
-with db_connection('config\config.ini', 'redshift') as engine:
+with db_connection('config/config.ini', 'redshift') as engine:
     load_to_sql(df_matches, 'dim_matches', engine)
     load_to_sql(df_player_stats, 'fact_player_stats', engine)
     load_to_sql(df_stage, 'stage', engine)
