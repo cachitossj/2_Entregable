@@ -180,8 +180,6 @@ def extract_match_details(player_puuid: str, start_time: int, queue: str, match_
         return pd.DataFrame()
 
 # Será utilizada para retornar un Diccionario con el listado de Campeones actualizados en el juego, ya que filtramos por Versión.
-
-
 def get_champion_data() -> Dict:
     try:
         # Obtenemos la lista de versiones.
@@ -209,8 +207,6 @@ def get_champion_data() -> Dict:
         return None
 
 # Será utilizada para retornar un Dataframe con información de cada uno de los Campeones del juego.
-
-
 def extract_champion_info(champion_data: Dict) -> pd.DataFrame:
     try:
         champions = champion_data['data'].keys()
@@ -251,8 +247,6 @@ def extract_champion_info(champion_data: Dict) -> pd.DataFrame:
         return None
 
 # Será utilizada para retornar un Diccionario con el listado de Items actualizados en el juego, ya que filtramos por Versión.
-
-
 def get_items_data() -> Dict:
     try:
         # Obtenemos la lista de versiones.
@@ -280,8 +274,6 @@ def get_items_data() -> Dict:
         return None
 
 # Será utilizada para retornar un Dataframe con información de cada uno de los Items del juego.
-
-
 def extract_items_info(items_data: Dict) -> pd.DataFrame:
     try:
         items = items_data['data'].keys()
@@ -326,8 +318,6 @@ def extract_items_info(items_data: Dict) -> pd.DataFrame:
         return None
 
 # Será utilizada para retornar un diccionario con toda la información de las partidas (filtrada para nuestro jugador de interés), en base a los IDs de ellas.
-
-
 def get_match_stats(match_id: str) -> Dict:
     endpoint = f'{params["base_url_region"]}/{params["MATCHES-V5"]}{match_id}?api_key={params["API_KEY"]}'
     try:
@@ -359,8 +349,6 @@ def get_match_stats(match_id: str) -> Dict:
         return None
 
 # Será utilizada para retornar un DataFrame con información y métricas del jugador, dentro de la partida.
-
-
 def extract_player_match_stats(player_puuid: str, start_time: int, queue: int, match_type: str) -> pd.DataFrame:
 
     # Lista para almacenar las estadísticas de las partidas.
@@ -419,8 +407,6 @@ def extract_player_match_stats(player_puuid: str, start_time: int, queue: int, m
         return pd.DataFrame()
 
 # Será utilizada para hacer la conexión con la Base de Datos.
-
-
 def connect_to_db(config_file: str, section: str):
     try:
         parser = ConfigParser()
@@ -445,9 +431,9 @@ def connect_to_db(config_file: str, section: str):
             raise Exception(
                 f'Section {section} not found in file {config_file}')
     except Exception as e:
-        logging.error(f'Error connecting to database: {e}')
+        logging.error(
+            f'Error connecting to database: {type(e).__name__} - {str(e)}')
         return None
-
 
 @contextmanager
 def db_connection(config_file: str, section: str):
@@ -457,9 +443,7 @@ def db_connection(config_file: str, section: str):
         try:
             yield engine
         finally:
-            # Aquí puedes agregar código para cerrar la conexión si es necesario
-            pass
-
+            engine.dispose()
 
 def load_to_sql(df: pd.DataFrame, table_name: str, engine: Engine, if_exist: str = 'replace') -> None:
     try:
@@ -476,7 +460,6 @@ def load_to_sql(df: pd.DataFrame, table_name: str, engine: Engine, if_exist: str
         logging.error(f'Error loading data into database: {e}')
 
 # -----------------------------------------------------#
-
 
 try:
     df_match_details = extract_match_details(
@@ -517,6 +500,7 @@ except Exception as e:
     logging.error(f'Error occurred: {e}')
 
 # --------------------Stage--------------------
+
 df_stage = pd.merge(df_matches, df_player_stats, on='gameId')
 df_stage = df_stage.drop(columns='puuid_y')
 df_stage = df_stage.rename(columns={'puuid_x': 'puuid'})

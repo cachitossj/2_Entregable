@@ -2,7 +2,7 @@
 
 CREATE TABLE
     leosmaretto_dev_coderhouse.dim_matches (
-        gameId INTEGER PRIMARY KEY,
+        gameId INTEGER PRIMARY KEY distkey,
         puuid VARCHAR(80) NOT NULL,
         gameCreation TIMESTAMP NOT NULL,
         gameStartTimestamp TIMESTAMP NOT NULL,
@@ -10,7 +10,9 @@ CREATE TABLE
         team1_win BOOLEAN NOT NULL,
         team2_win BOOLEAN NOT NULL,
         gameDurationMinutes FLOAT NOT NULL
-    );
+    )
+    SORTKEY(gameId )
+    ;
 
 -- Tabla fact_player_stats
 
@@ -18,7 +20,7 @@ CREATE TABLE
     leosmaretto_dev_coderhouse.fact_player_stats (
         puuid VARCHAR(80) NOT NULL,
         summonerId VARCHAR(80) NOT NULL,
-        gameId INTEGER NOT NULL,
+        gameId INTEGER NOT NULL distkey,
         teamId INTEGER NOT NULL,
         summonerName VARCHAR(100) NOT NULL,
         role VARCHAR(30) NOT NULL,
@@ -38,8 +40,9 @@ CREATE TABLE
         goldSpent INTEGER NOT NULL,
         goldPerMinute FLOAT NOT NULL,
         PRIMARY KEY (puuid, gameId),
-        FOREIGN KEY (gameId) REFERENCES dim_matches(gameId)
-    );
+        FOREIGN KEY (gameId) REFERENCES leosmaretto_dev_coderhouse.dim_matches(gameId)
+    )
+    SORTKEY(puuid, gameId);
 
 -- Tabla stage
 
@@ -71,5 +74,5 @@ CREATE TABLE
         neutralMinionsKilled INTEGER NOT NULL,
         goldEarned INTEGER NOT NULL,
         goldSpent INTEGER NOT NULL,
-        goldPerMinute FLOAT NOT NULL,
+        goldPerMinute FLOAT NOT NULL
     );
