@@ -117,3 +117,62 @@ Con él, obtendremos información valiosa acerca de las **Estadísticas** de la 
 **¡Te invito a que investigues todo el contenido y estructura del JSON, con este [Ejemplo](https://jsonhero.io/j/qKeDJ6to4myy)!**
 
 ---
+# REDSHIFT
+
+## Creación de las tablas
+
+   **dim_matches:** Contiene información "temporal" de la partida, como la duración en Minutos, fecha y horario de creación, etc.
+   Se definió como **Clave de Ordenamiento** a **'gameId'**, ya que va a ser usada frecuentemente para realizar consultas de búsqueda.
+   En cuanto al **Estilo de Distribución**, se optó por usar el tipo **KEY** ya que es útil cuando las consultas suelen involucrar unir tablas mediante esa clave.
+
+     -- Tabla dim_matches
+    
+    CREATE TABLE
+    leosmaretto_dev_coderhouse.dim_matches (
+    
+    gameId INTEGER PRIMARY KEY distkey,
+    puuid VARCHAR(80) NOT NULL,
+    gameCreation TIMESTAMP NOT NULL,
+    gameStartTimestamp TIMESTAMP NOT NULL,
+    gameEndTimestamp TIMESTAMP NOT NULL,
+    team1_win BOOLEAN NOT NULL,
+    team2_win BOOLEAN NOT NULL,
+    gameDurationMinutes FLOAT NOT NULL
+    )
+    SORTKEY(gameId);
+**fact_player_stats:** Contiene las Estadísticas y Métricas del jugador en la partida, como la cantidad de Kills, las Asistencias, Muertes, KDA, entre otros.
+   Se definió como **Clave de Ordenamiento** a **'puuid' y  'gameId'**, ya que va a ser usada frecuentemente para realizar consultas de búsqueda.
+   En cuanto al **Estilo de Distribución**, se optó por usar el tipo **KEY** ya que es útil cuando las consultas suelen involucrar unir tablas mediante esa clave. Fue asignada a **'gameId'**.
+   
+
+    -- Tabla fact_player_stats
+    
+    CREATE TABLE
+    leosmaretto_dev_coderhouse.fact_player_stats (
+    
+    puuid VARCHAR(80) NOT NULL,
+    summonerId VARCHAR(80) NOT NULL,
+    gameId INTEGER NOT NULL distkey,
+    teamId INTEGER NOT NULL,
+    summonerName VARCHAR(100) NOT NULL,
+    role VARCHAR(30) NOT NULL,
+    lane VARCHAR(30) NOT NULL,
+    teamPosition VARCHAR(30) NOT NULL,
+    individualPosition VARCHAR(30) NOT NULL,
+    win BOOLEAN NOT NULL,
+    kills INTEGER NOT NULL,
+    deaths INTEGER NOT NULL,
+    kda FLOAT NOT NULL,
+    killParticipation FLOAT NOT NULL,
+    damagePerMinute FLOAT NOT NULL,
+    totalDamageDealt INTEGER NOT NULL,
+    totalMinionsKilled INTEGER NOT NULL,
+    neutralMinionsKilled INTEGER NOT NULL,
+    goldEarned INTEGER NOT NULL,
+    goldSpent INTEGER NOT NULL,
+    goldPerMinute FLOAT NOT NULL,
+    PRIMARY KEY (puuid, gameId),
+    FOREIGN KEY (gameId) REFERENCES 
+    leosmaretto_dev_coderhouse.dim_matches(gameId)
+    )
+    SORTKEY(puuid, gameId);
