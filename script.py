@@ -445,6 +445,7 @@ def db_connection(config_file: str, section: str):
         finally:
             engine.dispose()
 
+
 def load_to_sql(df: pd.DataFrame, table_name: str, engine: Engine, if_exist: str = 'replace') -> None:
     try:
         logging.info('loading data into the database...')
